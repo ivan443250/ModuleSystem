@@ -17,15 +17,12 @@ namespace MVCSample.Tools
         [SerializeField] 
         private string _className;
 
-        public Type Value
+        public Type GetValue()
         {
-            get
-            {
-                if (_className == null)
-                    throw new NullReferenceException();
+            if (_className == null)
+                throw new NullReferenceException();
 
-                return Type.GetType(_className);
-            }
+            return Type.GetType(_className);
         }
     }
 }
