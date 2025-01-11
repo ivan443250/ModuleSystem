@@ -8,21 +8,21 @@ namespace MVCSample.Tools
     public class SerializableType
     {
 #if UNITY_EDITOR
-        public const string ClassNameField = nameof(_className);
         public const string ScriptField = nameof(_script);
+        public const string ClassInfoField = nameof(_classInfo);
 
         [SerializeField] private MonoScript _script;
 #endif
         [HideInInspector]
         [SerializeField] 
-        private string _className;
+        private string _classInfo;
 
         public Type GetValue()
         {
-            if (_className == null)
+            if (_classInfo == null)
                 throw new NullReferenceException();
 
-            return Type.GetType(_className);
+            return Type.GetType(_classInfo);
         }
     }
 }
