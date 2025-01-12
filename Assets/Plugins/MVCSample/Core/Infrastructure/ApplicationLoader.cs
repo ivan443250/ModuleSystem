@@ -1,7 +1,6 @@
 using MVCSample.Tools.Constants;
 using MVCSample.Tools.DataContainers;
 using System;
-using UnityEditor;
 using UnityEngine;
 
 namespace MVCSample.Infrastructure
@@ -11,14 +10,17 @@ namespace MVCSample.Infrastructure
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void AutostartApplication()
         {
-            Debug.Log(GetApplicationLauncherType().FullName);
+            if (GetApplicationLauncher() is not BaseApplicationLauncher applicationLauncher)
+                throw new InvalidOperationException();
+
+            applicationLauncher.Launch();
         }
 
-        private static Type GetApplicationLauncherType()
+        private static object GetApplicationLauncher()
         {
             var loadDataContainer = Resources.Load<ApplicationLoadDataContainer>(ResourcesDataPathConstants.ApplicationLoadDataPath);
 
-            return loadDataContainer.GetLauncherType();
+            return Activator.CreateInstance(loadDataContainer.GetLauncherType());
         }
     }
 }
