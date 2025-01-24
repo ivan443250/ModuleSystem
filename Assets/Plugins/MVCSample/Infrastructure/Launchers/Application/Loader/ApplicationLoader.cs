@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MVCSample.Infrastructure
 {
-    public class ApplicationLoader
+    internal static class ApplicationLoader
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void AutostartApplication()
@@ -13,7 +13,7 @@ namespace MVCSample.Infrastructure
             if (GetApplicationLauncher() is not BaseApplicationLauncher applicationLauncher)
                 throw new InvalidOperationException();
 
-            applicationLauncher.Launch();
+            applicationLauncher.Construct();
         }
 
         private static object GetApplicationLauncher()

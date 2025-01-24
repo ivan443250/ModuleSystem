@@ -2,7 +2,7 @@ namespace MVCSample.Infrastructure
 {
     public abstract class BaseApplicationLauncher
     {
-        public void Launch()
+        public void Construct()
         {
             PreInitialize();
             SetDependences();
