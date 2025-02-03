@@ -75,5 +75,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 **/[Tt]estFolder/*
+**/[Zz]enject/*
 *.meta
 **/[Tt]extMesh Pro/*
