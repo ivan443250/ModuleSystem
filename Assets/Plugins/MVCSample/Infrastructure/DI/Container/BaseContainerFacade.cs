@@ -1,4 +1,5 @@
 using MVCSample.Tools;
+using System;
 using System.Collections.Generic;
 
 namespace MVCSample.Infrastructure.DI
@@ -30,9 +31,11 @@ namespace MVCSample.Infrastructure.DI
         #region ContainerAPI
         public abstract void Register<TInterface, TImplementation>(bool asSingle = true) where TImplementation : TInterface;
         public abstract void RegisterInstance<TInterface>(TInterface instance);
+
         public abstract T Resolve<T>();
-        public abstract bool TryResolve<T>(out T instance) where T : class;
-        public abstract bool HasBinding<T>();
+        public abstract bool HasBinding(Type type);
+
+        public abstract IEnumerable<Type> GetAllContracts();
         #endregion
     }
 }

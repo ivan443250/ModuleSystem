@@ -5,11 +5,13 @@ namespace MVCSample.Infrastructure
         public void Construct()
         {
             PreInitialize();
-            SetDependences();
+
+            //SetDependences();
+
             Initialize();
 
-            InstallServicesBinding("binder");
-            InstallModulesBinding("binder");
+            //InstallServicesBinding("binder");
+            //InstallModulesBinding("binder");
         }
 
         private void SetDependences() { }
@@ -17,7 +19,7 @@ namespace MVCSample.Infrastructure
         protected virtual void PreInitialize() { }
         protected virtual void Initialize() { }
 
-        protected virtual void InstallServicesBinding(object binder) { }
-        protected virtual void InstallModulesBinding(object binder) { }
+        //protected virtual void InstallServicesBinding(object binder) { }
+        //protected virtual void InstallModulesBinding(object binder) { }
     }
 }

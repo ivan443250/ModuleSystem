@@ -1,4 +1,7 @@
 using MVCSample.Infrastructure.DI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Zenject;
 
 namespace MVCSample.Advanced
@@ -28,15 +31,14 @@ namespace MVCSample.Advanced
             return Container.Resolve<T>();
         }
 
-        public override bool TryResolve<T>(out T instance) where T : class
+        public override bool HasBinding(Type type)
         {
-            instance = Container.TryResolve<T>();
-            return instance != null;
+            return Container.HasBinding(type);
         }
 
-        public override bool HasBinding<T>()
+        public override IEnumerable<Type> GetAllContracts()
         {
-            return Container.HasBinding<T>();
+            return Container.AllContracts.Select(binding => binding.Type);
         }
     }
 }
