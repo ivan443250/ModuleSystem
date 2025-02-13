@@ -6,6 +6,8 @@ namespace MVCSample.Infrastructure.DI
 {
     public abstract class BaseContainerFacade<ContainerT> : IDIContainer, IBaseDIContainerAPI
     {
+        public IBaseDIContainerAPI ContainerAPI => this;
+
         protected readonly ContainerT Container;
 
         public BaseContainerFacade()
@@ -21,11 +23,6 @@ namespace MVCSample.Infrastructure.DI
                 installerHandler.HandleInstallerConditions(installer);
         }
 
-        public IBaseDIContainerAPI GetContainerAPI()
-        {
-            return this;
-        }
-
         public abstract ContainerT CreateContainer();
 
         #region ContainerAPI
@@ -35,7 +32,7 @@ namespace MVCSample.Infrastructure.DI
         public abstract T Resolve<T>();
         public abstract bool HasBinding(Type type);
 
-        public abstract IEnumerable<Type> GetAllContracts();
+        public abstract HashSet<Type> GetAllContracts();
         #endregion
     }
 }

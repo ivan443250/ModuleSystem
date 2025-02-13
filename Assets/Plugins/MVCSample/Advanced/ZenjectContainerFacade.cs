@@ -36,9 +36,9 @@ namespace MVCSample.Advanced
             return Container.HasBinding(type);
         }
 
-        public override IEnumerable<Type> GetAllContracts()
+        public override HashSet<Type> GetAllContracts()
         {
-            return Container.AllContracts.Select(binding => binding.Type);
+            return new (Container.AllContracts.Select(binding => binding.Type));
         }
     }
 }

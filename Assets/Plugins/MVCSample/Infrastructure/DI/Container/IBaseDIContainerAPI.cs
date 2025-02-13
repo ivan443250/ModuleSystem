@@ -11,6 +11,6 @@ namespace MVCSample.Infrastructure.DI
         T Resolve<T>();
 
         bool HasBinding(Type type);
-        IEnumerable<Type> GetAllContracts();
+        HashSet<Type> GetAllContracts();
     }
 }
