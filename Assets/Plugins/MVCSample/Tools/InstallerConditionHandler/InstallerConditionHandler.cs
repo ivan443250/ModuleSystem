@@ -3,47 +3,38 @@ using UnityEngine;
 
 namespace MVCSample.Tools
 {
-    public struct InstallerConditionHandler<TContainer>
+    public struct InstallerConditionHandler
     {
-        private readonly TContainer _container;
-        private readonly IBaseDIContainerAPI _containerAPI;
-
-        public InstallerConditionHandler(TContainer container, IBaseDIContainerAPI containerAPI)
-        {
-            _container = container;
-            _containerAPI = containerAPI;
-        }
-
-        public void HandleInstallerConditions(IInstaller installer)
+        public static void HandleInstallerConditions<TContainer>(IInstaller installer, TContainer container, IBaseDIContainerAPI api)
         {
             bool isUsed = false;
 
-            if (CheckGenericInstaller(installer))
+            if (CheckGenericInstaller(installer, container))
                 isUsed = true;
 
-            if (CheckBaseAPIInstaller(installer))
+            if (CheckBaseAPIInstaller(installer, api))
                 isUsed = true;
 
             if (isUsed == false) 
                 Debug.LogWarning($"Installer of type {installer.GetType()} not used");
         }
 
-        private bool CheckGenericInstaller(IInstaller installer)
+        private static bool CheckGenericInstaller<TContainer>(IInstaller installer, TContainer container)
         {
             if (installer is not IGenericInstaller<TContainer> genericInstaller)
                 return false;
 
-            genericInstaller.InstallBindings(_container);
+            genericInstaller.InstallBindings(container);
 
             return true;
         }
 
-        private bool CheckBaseAPIInstaller(IInstaller installer)
+        private static bool CheckBaseAPIInstaller(IInstaller installer, IBaseDIContainerAPI api)
         {
             if (installer is not IBaseAPIInstaller apiInstaller)
                 return false;
 
-            apiInstaller.InstallBindings(_containerAPI);
+            apiInstaller.InstallBindings(api);
 
             return true;
         }

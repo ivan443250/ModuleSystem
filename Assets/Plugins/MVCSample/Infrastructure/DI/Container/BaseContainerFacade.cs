@@ -17,10 +17,8 @@ namespace MVCSample.Infrastructure.DI
 
         public void AddInstallers(IEnumerable<IInstaller> installers)
         {
-            InstallerConditionHandler<ContainerT> installerHandler = new(Container, this);
-
             foreach (IInstaller installer in installers)
-                installerHandler.HandleInstallerConditions(installer);
+                InstallerConditionHandler.HandleInstallerConditions(installer, Container, this);
         }
 
         public abstract ContainerT CreateContainer();
@@ -28,6 +26,7 @@ namespace MVCSample.Infrastructure.DI
         #region ContainerAPI
         public abstract void Register<TInterface, TImplementation>(bool asSingle = true) where TImplementation : TInterface;
         public abstract void RegisterInstance<TInterface>(TInterface instance);
+        public abstract void RegisterFromMethod<TInterface>(Func<TInterface> method);
 
         public abstract T Resolve<T>();
         public abstract bool HasBinding(Type type);

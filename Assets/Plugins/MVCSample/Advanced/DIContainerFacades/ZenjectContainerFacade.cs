@@ -26,6 +26,11 @@ namespace MVCSample.Advanced
             Container.Bind<TInterface>().FromInstance(instance).AsSingle();
         }
 
+        public override void RegisterFromMethod<TInterface>(Func<TInterface> method)
+        {
+            Container.Bind<TInterface>().FromMethod(method).AsTransient();
+        }
+
         public override T Resolve<T>()
         {
             return Container.Resolve<T>();

@@ -7,6 +7,7 @@ namespace MVCSample.Infrastructure.DI
     {
         void Register<TInterface, TImplementation>(bool asSingle = true) where TImplementation : TInterface;
         void RegisterInstance<TInterface>(TInterface instance);
+        void RegisterFromMethod<TInterface>(Func<TInterface> method);
 
         T Resolve<T>();
 
