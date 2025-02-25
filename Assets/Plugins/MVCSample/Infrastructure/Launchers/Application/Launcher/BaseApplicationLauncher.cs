@@ -1,4 +1,3 @@
-using MVCSample.Infrastructure;
 using MVCSample.Infrastructure.DI;
 
 namespace MVCSample.Infrastructure

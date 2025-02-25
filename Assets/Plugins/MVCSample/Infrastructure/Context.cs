@@ -31,10 +31,15 @@ namespace MVCSample.Infrastructure
         {
             _parentContext = parentContext;
 
-            DiContainer = _parentContext.ResolveDependencyDeep<IDIContainer>();
+            DiContainer = _parentContext.ResolveDeep<IDIContainer>();
         }
 
-        public T ResolveDependencyDeep<T>()
+        public Context CreateNext()
+        {
+            return new Context(this);
+        }
+
+        public T ResolveDeep<T>()
         {
             if (DiContainer.ContainerAPI.HasBinding(typeof(T)))
                 return DiContainer.ContainerAPI.Resolve<T>();
@@ -42,7 +47,7 @@ namespace MVCSample.Infrastructure
             if (_parentContext == null)
                 throw new System.Exception();
 
-            return _parentContext.ResolveDependencyDeep<T>();
+            return _parentContext.ResolveDeep<T>();
         }
 
         public IDisposable SubscribeDeep<T>(Action<T> action) where T : IEvent

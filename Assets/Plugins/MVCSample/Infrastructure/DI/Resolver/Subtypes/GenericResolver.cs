@@ -25,7 +25,7 @@ namespace MVCSample.Infrastructure.DI
                 for (int i = 0; i < parametersInfo.Length; i++)
                 {
                     parameters[i] = GenericMethodInvoker
-                        .Invoke(nameof(Context.ResolveDependencyDeep), _currentContext, parametersInfo[i].ParameterType);
+                        .Invoke(nameof(Context.ResolveDeep), _currentContext, parametersInfo[i].ParameterType);
                 }
 
                 method.Invoke(resolvable, parameters);

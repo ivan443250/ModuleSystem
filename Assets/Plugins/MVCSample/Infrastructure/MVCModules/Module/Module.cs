@@ -15,8 +15,8 @@ namespace MVCSample.Infrastructure
             _currentContext = currentContext;
             _view = view;
 
-            _model = _currentContext.ResolveDependencyDeep<ModelT>();
-            _controller = _currentContext.ResolveDependencyDeep<ControllerT>();
+            _model = _currentContext.ResolveDeep<ModelT>();
+            _controller = _currentContext.ResolveDeep<ControllerT>();
 
 
         }
