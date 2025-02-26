@@ -1,24 +1,20 @@
-using MVCSample.Infrastructure;
+using System;
+using System.Collections.Generic;
 
 namespace MVCSample.Infrastructure
 {
-    public class Module<ModelT, ViewT, ControllerT>
+    public abstract class Module : IModule
     {
-        private readonly ModelT _model;
-        private readonly ViewT _view;
-        private readonly ControllerT _controller;
+        public abstract HashSet<Type> GetNecessaryDependencyTypes();
 
-        private readonly Context _currentContext;
-
-        public Module(Context currentContext, ViewT view)
+        public void Initialize(Context context)
         {
-            _currentContext = currentContext;
-            _view = view;
+            throw new NotImplementedException();
+        }
 
-            _model = _currentContext.ResolveDeep<ModelT>();
-            _controller = _currentContext.ResolveDeep<ControllerT>();
-
-
+        public bool TryGetContract<T>(out T contract)
+        {
+            throw new NotImplementedException();
         }
     }
 }

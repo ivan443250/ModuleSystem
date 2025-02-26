@@ -1,9 +1,14 @@
-using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 namespace MVCSample.Infrastructure
 {
     public interface IModule
     {
-        public void Initialize(Context context);
+        HashSet<Type> GetNecessaryDependencyTypes();
+        
+        void Initialize(Context context);
+
+        bool TryGetContract<T>(out T contract);
     }
 }

@@ -1,5 +1,7 @@
 using MVCSample.Infrastructure.EventSystem;
 using MVCSample.Tools;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MVCSample.Infrastructure
@@ -9,8 +11,12 @@ namespace MVCSample.Infrastructure
         [SerializeField] private BaseMonoBehaviourView _view;
 
         [SerializeField] private SerializableType _modelType;
-        [SerializeField] private SerializableType _viewType;
         [SerializeField] private SerializableType _controllerType;
+
+        public HashSet<Type> GetNecessaryDependencyTypes()
+        {
+            throw new NotImplementedException();
+        }
 
         public void Initialize(Context context)
         {
@@ -19,14 +25,18 @@ namespace MVCSample.Infrastructure
             RegisterEvents(context.EventContainer);
         }
 
+        public bool TryGetContract<T>(out T contract)
+        {
+            throw new NotImplementedException();
+        }
+
         private void InitializeChildren(Context context)
         {
+            List<Transform> children = new();
+
             for (int i = 0; i < transform.childCount; i++)
             {
-                Transform child = transform.GetChild(i);
-
-                if (child.TryGetComponent(out IModule moduleComponent))
-                    moduleComponent.Initialize(context.CreateNext());
+                children.Add(transform.GetChild(i));
             }
         }
 
