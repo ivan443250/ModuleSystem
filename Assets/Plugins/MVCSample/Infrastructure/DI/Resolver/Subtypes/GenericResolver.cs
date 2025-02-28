@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace MVCSample.Infrastructure.DI
 {
-    public class GenericResolver : IResolver
+    public class GenericResolver : IResolver, IResolvingChecker
     {
         private readonly Context _currentContext;
 
@@ -15,18 +15,36 @@ namespace MVCSample.Infrastructure.DI
             _currentContext = currentContext;
         }
 
-        public void Resolve(object resolvable, Type type)
+        public bool CheckResolving(Type type, out HashSet<Type> unresolvableTypes)
         {
-            foreach (MethodInfo method in GetInjectedMethods(type))
+            unresolvableTypes = new();
+
+            IEnumerable<Type> allDependentTypes = GetInjectedMethods(type)
+                .SelectMany(m => m.GetParameters())
+                .Select(p => p.ParameterType);
+
+            foreach (Type dependentType in allDependentTypes)
+                if (_currentContext.HasBindingDeep(dependentType) == false)
+                    unresolvableTypes.Add(dependentType);
+
+            return unresolvableTypes.Count == 0;
+        }
+
+        public IResolver GetNext(Context context)
+        {
+            return new GenericResolver(context);
+        }
+
+        public void Resolve(object resolvable)
+        {
+            foreach (MethodInfo method in GetInjectedMethods(resolvable.GetType()))
             {
                 ParameterInfo[] parametersInfo = method.GetParameters();
                 object[] parameters = new object[parametersInfo.Length];
 
                 for (int i = 0; i < parametersInfo.Length; i++)
-                {
                     parameters[i] = GenericMethodInvoker
                         .Invoke(nameof(Context.ResolveDeep), _currentContext, parametersInfo[i].ParameterType);
-                }
 
                 method.Invoke(resolvable, parameters);
             }

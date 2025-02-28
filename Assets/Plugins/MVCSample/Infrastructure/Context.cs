@@ -39,6 +39,14 @@ namespace MVCSample.Infrastructure
             return new Context(this);
         }
 
+        public bool HasBindingDeep(Type type)
+        {
+            if (DiContainer.ContainerAPI.HasBinding(type))
+                return true;
+
+            return _parentContext == null ? false : _parentContext.HasBindingDeep(type);
+        }
+
         public T ResolveDeep<T>()
         {
             if (DiContainer.ContainerAPI.HasBinding(typeof(T)))
@@ -50,7 +58,7 @@ namespace MVCSample.Infrastructure
             return _parentContext.ResolveDeep<T>();
         }
 
-        public IDisposable SubscribeDeep<T>(Action<T> action) where T : IEvent
+        public IDisposable SubscribeDeep<T>(Action<T> action) where T : IEventData
         {
             if (@EventContainer.HasEvent<T>())
                 return @EventContainer.Subscribe(action);

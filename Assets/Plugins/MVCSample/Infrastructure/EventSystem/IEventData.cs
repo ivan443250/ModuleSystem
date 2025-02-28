@@ -1,4 +1,4 @@
 namespace MVCSample.Infrastructure.EventSystem
 {
-    public interface IEvent { }
+    public interface IEventData { }
 }

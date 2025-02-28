@@ -1,14 +1,11 @@
+using MVCSample.Tools;
 using System;
 using System.Collections.Generic;
 
 namespace MVCSample.Infrastructure
 {
-    public interface IModule
+    public interface IModule : IDependencyCollectionElement
     {
-        HashSet<Type> GetNecessaryDependencyTypes();
-        
         void Initialize(Context context);
-
-        bool TryGetContract<T>(out T contract);
     }
 }

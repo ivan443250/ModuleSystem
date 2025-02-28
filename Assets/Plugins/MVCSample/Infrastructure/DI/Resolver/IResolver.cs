@@ -4,6 +4,8 @@ namespace MVCSample.Infrastructure.DI
 {
     public interface IResolver
     {
-        void Resolve(object resolvable, Type type);
+        void Resolve(object resolvable);
+
+        IResolver GetNext(Context context);
     }
 }

@@ -5,7 +5,12 @@ namespace MVCSample.Infrastructure
 {
     public abstract class Module : IModule
     {
-        public abstract HashSet<Type> GetNecessaryDependencyTypes();
+        public HashSet<Type> GetAllProvidedContracts()
+        {
+            throw new NotImplementedException();
+        }
+
+        public abstract HashSet<Type> GetNecessaryDependencesInCurrentContext();
 
         public void Initialize(Context context)
         {
