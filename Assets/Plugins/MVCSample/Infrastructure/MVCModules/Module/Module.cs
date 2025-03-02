@@ -12,7 +12,7 @@ namespace MVCSample.Infrastructure
 
         public abstract HashSet<Type> GetNecessaryDependencesInCurrentContext();
 
-        public void Initialize(Context context)
+        public void Construct(Context context)
         {
             throw new NotImplementedException();
         }

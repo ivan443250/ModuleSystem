@@ -6,6 +6,6 @@ namespace MVCSample.Infrastructure
 {
     public interface IModule : IDependencyCollectionElement
     {
-        void Initialize(Context context);
+        void Construct(Context context);
     }
 }

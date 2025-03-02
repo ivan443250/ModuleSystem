@@ -10,11 +10,14 @@ namespace MVCSample.Tools
         private T[] _elementArray;
         private Dictionary<Type, int> _typeIndexPair;
         private Action<T> _initializationCallback;
+        private Func<T, HashSet<Type>> _mustInitializeBeforeCallback;
 
         private HashSet<int> _initializedElements;
         private Stack<int> _initializeStack;
 
-        public DependencyCollectionInitializator(IEnumerable<T> collection, Action<T> initializationCallback)
+        public DependencyCollectionInitializator(IEnumerable<T> collection, 
+            Action<T> initializationCallback, 
+            Func<T, HashSet<Type>> mustInitializeBeforeCallback)
         {
             _elementArray = collection.ToArray();
 
@@ -34,6 +37,7 @@ namespace MVCSample.Tools
             }
 
             _initializationCallback = initializationCallback;
+            _mustInitializeBeforeCallback = mustInitializeBeforeCallback;
 
             _initializedElements = new();
             _initializeStack = new();
@@ -61,7 +65,7 @@ namespace MVCSample.Tools
 
             _initializeStack.Push(index);
 
-            HashSet<Type> uninitializedDependentTypes = _elementArray[index].GetNecessaryDependencesInCurrentContext();
+            HashSet<Type> uninitializedDependentTypes = _mustInitializeBeforeCallback.Invoke(_elementArray[index]);
 
             while (uninitializedDependentTypes.Count > 0)
             {
