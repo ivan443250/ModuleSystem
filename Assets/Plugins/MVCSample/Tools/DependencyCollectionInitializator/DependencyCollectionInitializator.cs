@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace MVCSample.Tools
 {
@@ -15,7 +16,7 @@ namespace MVCSample.Tools
         private HashSet<int> _initializedElements;
         private Stack<int> _initializeStack;
 
-        public DependencyCollectionInitializator(IEnumerable<T> collection, 
+        public DependencyCollectionInitializator(IEnumerable<T> collection,
             Action<T> initializationCallback, 
             Func<T, HashSet<Type>> mustInitializeBeforeCallback)
         {
@@ -26,6 +27,12 @@ namespace MVCSample.Tools
             for (int i = 0; i < _elementArray.Length; i++)
             {
                 HashSet<Type> providedContracts = _elementArray[i].GetAllProvidedContracts();
+
+                if (providedContracts.Count == 0)
+                {
+                    _typeIndexPair.Add(_elementArray[i].GetType(), i);
+                    continue;
+                }
 
                 foreach (Type type in providedContracts)
                 {
@@ -55,6 +62,8 @@ namespace MVCSample.Tools
 
         private void InitializeElement(Type type)
         {
+            Debug.Log($"init start {type}");
+
             int index = _typeIndexPair[type];
 
             if (_initializedElements.Contains(index))
@@ -81,6 +90,8 @@ namespace MVCSample.Tools
             _initializedElements.Add(index);
 
             _initializeStack.Pop();
+
+            Debug.Log($"init end {type}");
         }
 
         #endregion

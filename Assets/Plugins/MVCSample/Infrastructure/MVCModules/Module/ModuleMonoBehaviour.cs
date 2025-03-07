@@ -9,43 +9,51 @@ using UnityEngine;
 
 namespace MVCSample.Infrastructure
 {
-    public abstract class ModuleMonoBehaviour : MonoBehaviour, IModule, IDependencyCollectionElement
+    public abstract class ModuleMonoBehaviour : MonoBehaviour, IModule
     {
-        [SerializeField] private BaseMonoBehaviourView _view;
-
-        [SerializeField] private SerializableType _modelType;
-        [SerializeField] private SerializableType _controllerType;
-
         private Context _currentContext;
 
         private IResolver _resolver;
 
-        #region Initialize
+        private IDIRegistrationSystem _dIRegistrationSystem;
+
+        #region Initialization
 
         public void Construct(Context context)
         {
+            Debug.Log($"const start {GetType()}");
+
             _currentContext = context;
 
             PreInitialize();
 
-            RegisterEvents(context.EventContainer);
+            RegisterEvents(_currentContext.EventContainer);
 
-            InitializeChildren(context);
-
-            ResolveBindings();
+            SetDIRegistrationSystem();
 
             InstallBindings();
 
+            InitializeChildren(_currentContext);
+
+            ResolveBindings();
+
             Initialize();
+
+            Debug.Log($"const end {GetType()}");
         }
 
-        public virtual HashSet<Type> GetAllProvidedContracts() => new();
+        public virtual HashSet<Type> GetAllProvidedContracts()
+        {
+            SetDIRegistrationSystem();
+
+            return _dIRegistrationSystem.GetContracts();
+        }
 
         public HashSet<Type> GetNecessaryDependencesInCurrentContext(Context parentContext)
         {
-            IResolvingChecker resolvingChecker = parentContext.ResolveDeep<IResolvingChecker>();
+            IResolvingChecker resolvingChecker = Context.Global.Resolve<IResolvingChecker>();
 
-            if (resolvingChecker.CheckResolving(GetType(), out HashSet<Type> unresolvableTypes))
+            if (resolvingChecker.CheckResolving(parentContext, GetType(), out HashSet<Type> unresolvableTypes))
                 return new();
 
             IEnumerable<Type> contractsInContext = GetChildren(transform.parent)
@@ -64,7 +72,7 @@ namespace MVCSample.Infrastructure
         #region Subtypes interface
 
         protected virtual void RegisterEvents(EventContainer eventContainer) { }
-        protected virtual void IntallBindings(IDIContainer diContainer) { }
+        protected virtual void IntallBindings(IDIRegistratorAPI diRegistrator) { }
         protected virtual void PreInitialize() { }
         protected virtual void Initialize() { }
 
@@ -75,6 +83,15 @@ namespace MVCSample.Infrastructure
         private void InitializeChildren(Context context)
         {
             List<IModule> children = GetChildren();
+
+            if (children.Count == 0)
+                return;
+
+            if (children.Count == 1)
+            {
+                children.First().Construct(context.CreateNext());
+                return;
+            }
 
             DependencyCollectionInitializator<IModule> initializator = new(children, 
                 m => m.Construct(context.CreateNext()),
@@ -88,12 +105,12 @@ namespace MVCSample.Infrastructure
             return GetChildren(transform);
         }
 
-        private List<IModule> GetChildren(Transform parent)
+        private List<IModule> GetChildren(Transform currentTransform)
         {
             List<IModule> children = new();
 
-            for (int i = 0; i < transform.childCount; i++)
-                if (transform.GetChild(i).TryGetComponent(out IModule module))
+            for (int i = 0; i < currentTransform.childCount; i++)
+                if (currentTransform.GetChild(i).TryGetComponent(out IModule module))
                     children.Add(module);
 
             return children;
@@ -101,16 +118,25 @@ namespace MVCSample.Infrastructure
 
         private void ResolveBindings()
         {
-            _resolver = _currentContext.ResolveDeep<IResolver>();
+            _resolver = Context.Global.Resolve<IResolver>();
 
-            _resolver.Resolve(this);
+            _resolver.Resolve(_currentContext, this);
         }
 
         private void InstallBindings()
         {
-            _currentContext.DiContainer.ContainerAPI.RegisterInstance(_resolver.GetNext(_currentContext));
+            _dIRegistrationSystem.ActivateBindings(_currentContext.DiContainer.ContainerAPI);
+        }
 
-            IntallBindings(_currentContext.DiContainer);
+        private void SetDIRegistrationSystem()
+        {
+            if (_dIRegistrationSystem != null)
+                return;
+
+            _dIRegistrationSystem = Context.Global.Resolve<IDIRegistrationSystem>();
+
+            IntallBindings(_dIRegistrationSystem);
+            _dIRegistrationSystem.StopRegistration();
         }
 
         #endregion

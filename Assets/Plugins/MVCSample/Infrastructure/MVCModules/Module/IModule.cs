@@ -1,6 +1,4 @@
 using MVCSample.Tools;
-using System;
-using System.Collections.Generic;
 
 namespace MVCSample.Infrastructure
 {

@@ -21,5 +21,7 @@ namespace MVCSample.Infrastructure
         {
             throw new NotImplementedException();
         }
+
+        public abstract HashSet<Type> GetNecessaryDependencesInCurrentContext(Context parentContext);
     }
 }

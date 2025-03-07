@@ -6,6 +6,8 @@ namespace MVCSample.Infrastructure
 {
     public class Context
     {
+        public static IDIResolverAPI Global { get; private set; }
+
         public readonly IDIContainer DiContainer;
         public readonly EventContainer @EventContainer;
 
@@ -19,11 +21,16 @@ namespace MVCSample.Infrastructure
         //Global Context
         public Context(IDIContainer dIContainer) : this() 
         {
+            if (Global != null)
+                throw new Exception("Can not use this constructor when global context already exist");
+
             DiContainer = dIContainer;
 
             Type containerType = DiContainer.GetType();
 
             DiContainer.ContainerAPI.RegisterFromMethod(() => Activator.CreateInstance(containerType) as IDIContainer);
+
+            Global = DiContainer.ContainerAPI;
         }
 
         //Other Contexts
@@ -31,7 +38,7 @@ namespace MVCSample.Infrastructure
         {
             _parentContext = parentContext;
 
-            DiContainer = _parentContext.ResolveDeep<IDIContainer>();
+            DiContainer = Global.Resolve<IDIContainer>();
         }
 
         public Context CreateNext()
@@ -53,7 +60,7 @@ namespace MVCSample.Infrastructure
                 return DiContainer.ContainerAPI.Resolve<T>();
 
             if (_parentContext == null)
-                throw new System.Exception();
+                throw new Exception($"Type {typeof(T)} was not binded yet");
 
             return _parentContext.ResolveDeep<T>();
         }
@@ -64,7 +71,7 @@ namespace MVCSample.Infrastructure
                 return @EventContainer.Subscribe(action);
 
             if (_parentContext == null)
-                throw new System.Exception();
+                throw new Exception(/*todo*/);
 
             return _parentContext.SubscribeDeep(action);
         }

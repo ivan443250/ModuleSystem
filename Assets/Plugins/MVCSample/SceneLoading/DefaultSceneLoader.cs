@@ -1,6 +1,6 @@
 using UnityEngine.SceneManagement;
 
-namespace MVCSample.Infrastructure
+namespace MVCSample.SceneManagement
 {
     public class DefaultSceneLoader : ISceneLoader
     {

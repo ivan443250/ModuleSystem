@@ -8,14 +8,7 @@ namespace MVCSample.Infrastructure.DI
 {
     public class GenericResolver : IResolver, IResolvingChecker
     {
-        private readonly Context _currentContext;
-
-        public GenericResolver(Context currentContext)
-        {
-            _currentContext = currentContext;
-        }
-
-        public bool CheckResolving(Type type, out HashSet<Type> unresolvableTypes)
+        public bool CheckResolving(Context context, Type type, out HashSet<Type> unresolvableTypes)
         {
             unresolvableTypes = new();
 
@@ -24,18 +17,13 @@ namespace MVCSample.Infrastructure.DI
                 .Select(p => p.ParameterType);
 
             foreach (Type dependentType in allDependentTypes)
-                if (_currentContext.HasBindingDeep(dependentType) == false)
+                if (context.HasBindingDeep(dependentType) == false)
                     unresolvableTypes.Add(dependentType);
 
             return unresolvableTypes.Count == 0;
         }
 
-        public IResolver GetNext(Context context)
-        {
-            return new GenericResolver(context);
-        }
-
-        public void Resolve(object resolvable)
+        public void Resolve(Context context, object resolvable)
         {
             foreach (MethodInfo method in GetInjectedMethods(resolvable.GetType()))
             {
@@ -44,7 +32,7 @@ namespace MVCSample.Infrastructure.DI
 
                 for (int i = 0; i < parametersInfo.Length; i++)
                     parameters[i] = GenericMethodInvoker
-                        .Invoke(nameof(Context.ResolveDeep), _currentContext, parametersInfo[i].ParameterType);
+                        .Invoke(nameof(Context.ResolveDeep), context, parametersInfo[i].ParameterType);
 
                 method.Invoke(resolvable, parameters);
             }
@@ -54,7 +42,7 @@ namespace MVCSample.Infrastructure.DI
         {
             return type
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(m => m.Name == "GetDependency" && m.GetCustomAttribute<InjectFromContextAttribute>() != null);
+                .Where(m => m.GetCustomAttribute<InjectFromContextAttribute>() != null);
         }
     }
 }
