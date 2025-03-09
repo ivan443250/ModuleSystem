@@ -6,27 +6,36 @@ using System.Reflection;
 
 namespace MVCSample.Infrastructure.DI
 {
-    public class GenericResolver : IResolver
+    public class GenericResolver : IResolver, IResolvingChecker
     {
-        private readonly Context _currentContext;
-
-        public GenericResolver(Context currentContext)
+        public bool CheckResolving(Context context, IEnumerable<Type> dependences, out HashSet<Type> unresolvableTypes)
         {
-            _currentContext = currentContext;
+            unresolvableTypes = new();
+
+            foreach (Type dependentType in dependences)
+                if (context.HasBindingDeep(dependentType) == false)
+                    unresolvableTypes.Add(dependentType);
+
+            return unresolvableTypes.Count == 0;
         }
 
-        public void Resolve(object resolvable, Type type)
+        public IEnumerable<Type> GetAllDependences(Context context, Type type)
         {
-            foreach (MethodInfo method in GetInjectedMethods(type))
+            return GetInjectedMethods(type)
+                    .SelectMany(m => m.GetParameters())
+                    .Select(p => p.ParameterType);
+        }
+
+        public void Resolve(Context context, object resolvable)
+        {
+            foreach (MethodInfo method in GetInjectedMethods(resolvable.GetType()))
             {
                 ParameterInfo[] parametersInfo = method.GetParameters();
                 object[] parameters = new object[parametersInfo.Length];
 
                 for (int i = 0; i < parametersInfo.Length; i++)
-                {
                     parameters[i] = GenericMethodInvoker
-                        .Invoke(nameof(Context.ResolveDependencyDeep), _currentContext, parametersInfo[i].ParameterType);
-                }
+                        .Invoke(nameof(Context.ResolveDeep), context, parametersInfo[i].ParameterType);
 
                 method.Invoke(resolvable, parameters);
             }
@@ -36,7 +45,7 @@ namespace MVCSample.Infrastructure.DI
         {
             return type
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(m => m.Name == "GetDependency" && m.GetCustomAttribute<InjectFromContextAttribute>() != null);
+                .Where(m => m.GetCustomAttribute<InjectFromContextAttribute>() != null);
         }
     }
 }

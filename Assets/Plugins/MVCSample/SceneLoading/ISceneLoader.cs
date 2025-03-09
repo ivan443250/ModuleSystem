@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MVCSample.Infrastructure
+namespace MVCSample.SceneManagement
 {
     public interface ISceneLoader
     {
