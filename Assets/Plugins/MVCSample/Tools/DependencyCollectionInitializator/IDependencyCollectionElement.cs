@@ -6,7 +6,7 @@ namespace MVCSample.Tools
 {
     public interface IDependencyCollectionElement
     {
-        HashSet<Type> GetNecessaryDependencesInCurrentContext(Context parentContext);
+        HashSet<Type> GetNecessaryDependencesInCurrentContext(Context parentContext, IEnumerable<IModule> parentChildrens);
 
         HashSet<Type> GetAllProvidedContracts();
     }

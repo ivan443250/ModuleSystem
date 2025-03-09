@@ -8,19 +8,22 @@ namespace MVCSample.Infrastructure.DI
 {
     public class GenericResolver : IResolver, IResolvingChecker
     {
-        public bool CheckResolving(Context context, Type type, out HashSet<Type> unresolvableTypes)
+        public bool CheckResolving(Context context, IEnumerable<Type> dependences, out HashSet<Type> unresolvableTypes)
         {
             unresolvableTypes = new();
 
-            IEnumerable<Type> allDependentTypes = GetInjectedMethods(type)
-                .SelectMany(m => m.GetParameters())
-                .Select(p => p.ParameterType);
-
-            foreach (Type dependentType in allDependentTypes)
+            foreach (Type dependentType in dependences)
                 if (context.HasBindingDeep(dependentType) == false)
                     unresolvableTypes.Add(dependentType);
 
             return unresolvableTypes.Count == 0;
+        }
+
+        public IEnumerable<Type> GetAllDependences(Context context, Type type)
+        {
+            return GetInjectedMethods(type)
+                    .SelectMany(m => m.GetParameters())
+                    .Select(p => p.ParameterType);
         }
 
         public void Resolve(Context context, object resolvable)

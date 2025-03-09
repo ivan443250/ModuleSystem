@@ -1,6 +1,7 @@
 using MVCSample.Infrastructure.DI;
 using MVCSample.Infrastructure.EventSystem;
 using System;
+using System.Collections.Generic;
 
 namespace MVCSample.Infrastructure
 {
@@ -13,13 +14,17 @@ namespace MVCSample.Infrastructure
 
         private readonly Context _parentContext;
 
-        public Context()
+        private HashSet<Type> _bindWaitings;
+
+        private Context()
         {
             @EventContainer = new();
+
+            _bindWaitings = new();
         }
 
         //Global Context
-        public Context(IDIContainer dIContainer) : this() 
+        public Context(IDIContainer dIContainer) : this()
         {
             if (Global != null)
                 throw new Exception("Can not use this constructor when global context already exist");
@@ -34,7 +39,7 @@ namespace MVCSample.Infrastructure
         }
 
         //Other Contexts
-        public Context(Context parentContext) : this()
+        private Context(Context parentContext) : this()
         {
             _parentContext = parentContext;
 
@@ -44,6 +49,29 @@ namespace MVCSample.Infrastructure
         public Context CreateNext()
         {
             return new Context(this);
+        }
+
+        public void AddBindWaiting(Type type)
+        {
+            if (_bindWaitings.Contains(type))
+                throw new Exception(/*todo*/);
+
+            _bindWaitings.Add(type);
+        }
+
+        public bool TryRegisterBindInWaitingDeep(Type type, Action<IDIContainer> bindCallback)
+        {
+            if (_bindWaitings.Contains(type))
+            {
+                bindCallback.Invoke(DiContainer);
+                _bindWaitings.Remove(type);
+                return true;
+            }
+
+            if (_parentContext == null)
+                return false;
+
+            return _parentContext.TryRegisterBindInWaitingDeep(type, bindCallback);
         }
 
         public bool HasBindingDeep(Type type)

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace MVCSample.Tools
 {
@@ -62,8 +61,6 @@ namespace MVCSample.Tools
 
         private void InitializeElement(Type type)
         {
-            Debug.Log($"init start {type}");
-
             int index = _typeIndexPair[type];
 
             if (_initializedElements.Contains(index))
@@ -90,8 +87,6 @@ namespace MVCSample.Tools
             _initializedElements.Add(index);
 
             _initializeStack.Pop();
-
-            Debug.Log($"init end {type}");
         }
 
         #endregion

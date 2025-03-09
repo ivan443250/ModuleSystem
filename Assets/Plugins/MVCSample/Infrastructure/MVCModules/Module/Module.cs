@@ -23,5 +23,10 @@ namespace MVCSample.Infrastructure
         }
 
         public abstract HashSet<Type> GetNecessaryDependencesInCurrentContext(Context parentContext);
+
+        public HashSet<Type> GetNecessaryDependencesInCurrentContext(Context parentContext, IEnumerable<IModule> parentChildrens)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

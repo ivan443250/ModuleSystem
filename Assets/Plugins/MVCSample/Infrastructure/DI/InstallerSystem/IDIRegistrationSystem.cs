@@ -5,8 +5,8 @@ namespace MVCSample.Infrastructure.DI
 {
     public interface IDIRegistrationSystem : IDIRegistratorAPI
     {
-        HashSet<Type> GetContracts();
+        IEnumerable<Type> GetContracts();
         void StopRegistration();
-        void ActivateBindings(IDIRegistratorAPI dIRegistrator);
+        void ActivateBindings(Context dIRegistrator);
     }
 }

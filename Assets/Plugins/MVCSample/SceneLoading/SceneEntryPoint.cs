@@ -1,5 +1,4 @@
 using MVCSample.Infrastructure;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace MVCSample.SceneManagement

@@ -17,15 +17,21 @@ namespace MVCSample.Infrastructure
 
         private IDIRegistrationSystem _dIRegistrationSystem;
 
+        private List<IModule> _children;
+
+        private HashSet<Type> _allProvidedContrcts;
+
+        private IEnumerable<Type> _allDependences;
+
         #region Initialization
 
         public void Construct(Context context)
         {
-            Debug.Log($"const start {GetType()}");
-
             _currentContext = context;
 
             PreInitialize();
+
+            AddBindWaitings();
 
             RegisterEvents(_currentContext.EventContainer);
 
@@ -33,30 +39,37 @@ namespace MVCSample.Infrastructure
 
             InstallBindings();
 
-            InitializeChildren(_currentContext);
+            InitializeChildren();
 
             ResolveBindings();
 
             Initialize();
-
-            Debug.Log($"const end {GetType()}");
         }
 
         public virtual HashSet<Type> GetAllProvidedContracts()
         {
             SetDIRegistrationSystem();
 
-            return _dIRegistrationSystem.GetContracts();
+            if (_allProvidedContrcts == null)
+                _allProvidedContrcts = new(
+                    GetChildren()
+                    .SelectMany(m => m.GetAllProvidedContracts())
+                    .Union(_dIRegistrationSystem.GetContracts()));
+
+            return _allProvidedContrcts;
         }
 
-        public HashSet<Type> GetNecessaryDependencesInCurrentContext(Context parentContext)
+        public HashSet<Type> GetNecessaryDependencesInCurrentContext(Context parentContext, IEnumerable<IModule> parentChildrens)
         {
             IResolvingChecker resolvingChecker = Context.Global.Resolve<IResolvingChecker>();
 
-            if (resolvingChecker.CheckResolving(parentContext, GetType(), out HashSet<Type> unresolvableTypes))
-                return new();
+            if (_allDependences == null)
+                _allDependences = resolvingChecker.GetAllDependences(parentContext, GetType());
 
-            IEnumerable<Type> contractsInContext = GetChildren(transform.parent)
+            if (resolvingChecker.CheckResolving(parentContext, _allDependences, out HashSet<Type> unresolvableTypes))
+                return new(_children.SelectMany(m => m.GetNecessaryDependencesInCurrentContext(parentContext, GetChildren())));
+
+            IEnumerable<Type> contractsInContext = parentChildrens
                 .SelectMany(m => m.GetAllProvidedContracts());
 
             IEnumerable<Type> remainingTypes = unresolvableTypes.Except(contractsInContext);
@@ -64,12 +77,16 @@ namespace MVCSample.Infrastructure
             if (remainingTypes.Count() > 0)
                 throw new Exception(CreateTypeNotFoundErrorLog(remainingTypes));
 
-            return new(unresolvableTypes.Intersect(contractsInContext, new ReferenceComparer<Type>()));
+            return new(_children
+                .SelectMany(m => m.GetNecessaryDependencesInCurrentContext(parentContext, GetChildren()))
+                .Union(unresolvableTypes.Intersect(contractsInContext, new ReferenceComparer<Type>())));
         }
 
         #endregion
 
         #region Subtypes interface
+
+        protected virtual HashSet<Type> GetBindWaitings() => new();
 
         protected virtual void RegisterEvents(EventContainer eventContainer) { }
         protected virtual void IntallBindings(IDIRegistratorAPI diRegistrator) { }
@@ -78,9 +95,7 @@ namespace MVCSample.Infrastructure
 
         #endregion
 
-        #region Inside methods
-
-        private void InitializeChildren(Context context)
+        private void InitializeChildren()
         {
             List<IModule> children = GetChildren();
 
@@ -89,31 +104,29 @@ namespace MVCSample.Infrastructure
 
             if (children.Count == 1)
             {
-                children.First().Construct(context.CreateNext());
+                children.First().Construct(_currentContext.CreateNext());
                 return;
             }
 
-            DependencyCollectionInitializator<IModule> initializator = new(children, 
-                m => m.Construct(context.CreateNext()),
-                m => m.GetNecessaryDependencesInCurrentContext(context));
+            DependencyCollectionInitializator<IModule> initializator = new(children,
+                m => m.Construct(_currentContext.CreateNext()),
+                m => m.GetNecessaryDependencesInCurrentContext(_currentContext, GetChildren()));
 
             initializator.Initialize();
         }
 
         private List<IModule> GetChildren()
         {
-            return GetChildren(transform);
-        }
+            if (_children == null)
+            {
+                _children = new();
 
-        private List<IModule> GetChildren(Transform currentTransform)
-        {
-            List<IModule> children = new();
+                for (int i = 0; i < transform.childCount; i++)
+                    if (transform.GetChild(i).TryGetComponent(out IModule module))
+                        _children.Add(module);
+            }
 
-            for (int i = 0; i < currentTransform.childCount; i++)
-                if (currentTransform.GetChild(i).TryGetComponent(out IModule module))
-                    children.Add(module);
-
-            return children;
+            return _children;
         }
 
         private void ResolveBindings()
@@ -125,7 +138,7 @@ namespace MVCSample.Infrastructure
 
         private void InstallBindings()
         {
-            _dIRegistrationSystem.ActivateBindings(_currentContext.DiContainer.ContainerAPI);
+            _dIRegistrationSystem.ActivateBindings(_currentContext);
         }
 
         private void SetDIRegistrationSystem()
@@ -139,7 +152,14 @@ namespace MVCSample.Infrastructure
             _dIRegistrationSystem.StopRegistration();
         }
 
-        #endregion
+        private void AddBindWaitings()
+        {
+            IEnumerable<Type> bindWaitings = GetBindWaitings()
+                .Union(GetComponents<BindWaitingRegistrator>().SelectMany(r => r.GetBindWaitings()));
+
+            foreach (Type type in bindWaitings)
+                _currentContext.AddBindWaiting(type);
+        }
 
         #region Logs
 
@@ -147,7 +167,7 @@ namespace MVCSample.Infrastructure
         {
             StringBuilder sb = new($"Type {GetType()} can not get some types in current context:\n");
 
-            foreach (Type type in unfoundedTypes) 
+            foreach (Type type in unfoundedTypes)
                 sb.Append(type.FullName + "\n");
 
             return sb.ToString();

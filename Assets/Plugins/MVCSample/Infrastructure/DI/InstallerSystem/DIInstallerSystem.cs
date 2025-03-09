@@ -5,7 +5,7 @@ namespace MVCSample.Infrastructure.DI
 {
     public class DIInstallerSystem : IDIRegistrationSystem
     {
-        private Dictionary<Type, Action<IDIRegistratorAPI>> _bindingsToActivate;
+        private Dictionary<Type, Action<IDIContainer>> _bindingsToActivate;
 
         private State _state;
 
@@ -16,13 +16,18 @@ namespace MVCSample.Infrastructure.DI
             _state = State.Registration;
         }
 
-        public void ActivateBindings(IDIRegistratorAPI dIRegistrator)
+        public void ActivateBindings(Context context)
         {
             if (_state != State.Activation)
                 return;
 
             foreach (Type type in _bindingsToActivate.Keys)
-                _bindingsToActivate[type].Invoke(dIRegistrator);
+            {
+                if (context.TryRegisterBindInWaitingDeep(type, _bindingsToActivate[type]))
+                    continue;
+
+                _bindingsToActivate[type].Invoke(context.DiContainer);
+            }
 
             _state = State.Default;
         }
@@ -35,9 +40,9 @@ namespace MVCSample.Infrastructure.DI
             _state = State.Activation;
         }
 
-        public HashSet<Type> GetContracts()
+        public IEnumerable<Type> GetContracts()
         {
-            return new(_bindingsToActivate.Keys);
+            return _bindingsToActivate.Keys;
         }
 
         #region Registrator API
@@ -45,19 +50,22 @@ namespace MVCSample.Infrastructure.DI
         public void Register<TInterface, TImplementation>(bool asSingle = true) where TImplementation : TInterface
         {
             Type type = CheckTypeRepeatCondition<TInterface>();
-            _bindingsToActivate.Add(type, r => r.Register<TInterface, TImplementation>(asSingle));
+            _bindingsToActivate.Add(type, 
+                c => c.ContainerAPI.Register<TInterface, TImplementation>(asSingle));
         }
 
         public void RegisterInstance<TInterface>(TInterface instance)
         {
             Type type = CheckTypeRepeatCondition<TInterface>();
-            _bindingsToActivate.Add(type, r => r.RegisterInstance(instance));
+            _bindingsToActivate.Add(type, 
+                c => c.ContainerAPI.RegisterInstance(instance));
         }
 
         public void RegisterFromMethod<TInterface>(Func<TInterface> method)
         {
             Type type = CheckTypeRepeatCondition<TInterface>();
-            _bindingsToActivate.Add(type, r => r.RegisterFromMethod(method));
+            _bindingsToActivate.Add(type,
+                c => c.ContainerAPI.RegisterFromMethod(method));
         }
 
         private Type CheckTypeRepeatCondition<TInterface>()
