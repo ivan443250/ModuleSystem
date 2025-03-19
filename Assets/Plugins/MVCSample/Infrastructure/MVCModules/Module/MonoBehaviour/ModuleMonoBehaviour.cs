@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace MVCSample.Infrastructure
 {
-    public abstract class ModuleMonoBehaviour : MonoBehaviour, IModule
+    public abstract class ModuleMonoBehaviour : MonoBehaviour, IModule, IModuleContainer
     {
         private Context _currentContext;
 
@@ -95,6 +96,8 @@ namespace MVCSample.Infrastructure
 
         #endregion
 
+        IEnumerable<IModule> IModuleContainer.GetModules() => new IModule[] { this };
+
         private void InitializeChildren()
         {
             List<IModule> children = GetChildren();
@@ -122,8 +125,8 @@ namespace MVCSample.Infrastructure
                 _children = new();
 
                 for (int i = 0; i < transform.childCount; i++)
-                    if (transform.GetChild(i).TryGetComponent(out IModule module))
-                        _children.Add(module);
+                    if (transform.GetChild(i).TryGetComponent(out IModuleContainer container))
+                        _children.AddRange(container.GetModules());
             }
 
             return _children;
