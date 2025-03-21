@@ -1,9 +1,9 @@
 using MVCSample.Tools;
-using System.Collections.Generic;
+using System;
 
 namespace MVCSample.Infrastructure
 {
-    public interface IModule : IDependencyCollectionElement
+    public interface IModule : IDependencyCollectionElement, IDisposable
     {
         void Construct(Context context);
     }

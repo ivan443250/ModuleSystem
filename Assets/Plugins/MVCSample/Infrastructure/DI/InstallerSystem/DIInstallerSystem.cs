@@ -16,14 +16,14 @@ namespace MVCSample.Infrastructure.DI
             _state = State.Registration;
         }
 
-        public void ActivateBindings(Context context)
+        public void ActivateBindings(Context context, bool useDeepBinding)
         {
             if (_state != State.Activation)
                 return;
 
             foreach (Type type in _bindingsToActivate.Keys)
             {
-                if (context.TryRegisterBindInWaitingDeep(type, _bindingsToActivate[type]))
+                if (useDeepBinding && context.TryRegisterBindInWaitingDeep(type, _bindingsToActivate[type]))
                     continue;
 
                 _bindingsToActivate[type].Invoke(context.DiContainer);

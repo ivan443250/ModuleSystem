@@ -7,6 +7,6 @@ namespace MVCSample.Infrastructure.DI
     {
         IEnumerable<Type> GetContracts();
         void StopRegistration();
-        void ActivateBindings(Context dIRegistrator);
+        void ActivateBindings(Context dIRegistrator, bool useDeepBinding);
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 namespace MVCSample.Infrastructure.DI
 {
