@@ -31,10 +31,6 @@ namespace MVCSample.Infrastructure
 
             DiContainer = dIContainer;
 
-            Type containerType = DiContainer.GetType();
-
-            DiContainer.ContainerAPI.RegisterFromMethod(() => Activator.CreateInstance(containerType) as IDIContainer);
-
             Global = DiContainer.ContainerAPI;
         }
 

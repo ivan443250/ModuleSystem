@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: ApplicationLoadDataContainer
   m_EditorClassIdentifier: 
   _applicationLauncherType:
-    _script: {fileID: 11500000, guid: 68a908e16895c19438d51551189308fa, type: 3}
-    _classInfo: MVCSample.Infrastructure.Test.MyApplicationLauncher, Assembly-CSharp-firstpass,
+    _script: {fileID: 11500000, guid: 72de143c01679a84cb8eea9dc1ff3821, type: 3}
+    _classInfo: MVCSample.Infrastructure.DefaultApplicationLauncher, Assembly-CSharp-firstpass,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

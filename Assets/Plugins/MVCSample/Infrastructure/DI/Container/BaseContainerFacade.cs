@@ -21,7 +21,7 @@ namespace MVCSample.Infrastructure.DI
                 InstallerConditionHandler.HandleInstallerConditions(installer, Container, this);
         }
 
-        public abstract ContainerT CreateContainer();
+        protected abstract ContainerT CreateContainer();
 
         #region ContainerAPI
         public abstract void Register<TInterface, TImplementation>(bool asSingle = true) where TImplementation : TInterface;

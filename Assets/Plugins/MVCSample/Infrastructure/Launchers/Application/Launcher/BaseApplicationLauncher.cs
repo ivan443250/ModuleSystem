@@ -10,14 +10,14 @@ namespace MVCSample.Infrastructure
         {
             PreInitialize();
 
-            GlobalContext = new Context(CreateContainer());
+            GlobalContext = new Context(GetSystemBindInstaller().InstallSystemBindings());
 
             InstallBindings(GlobalContext.DiContainer);
 
             Initialize();
         }
 
-        protected abstract IDIContainer CreateContainer();
+        protected abstract ISystemBindInstaller GetSystemBindInstaller();
 
         protected virtual void PreInitialize() { }
         protected virtual void Initialize() { }

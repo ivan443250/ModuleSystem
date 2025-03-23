@@ -8,11 +8,6 @@ namespace MVCSample.Advanced
 {
     public class ZenjectContainerFacade : BaseContainerFacade<DiContainer>
     {
-        public override DiContainer CreateContainer()
-        {
-            return new DiContainer();
-        }
-
         public override void Register<TInterface, TImplementation>(bool asSingle = true)
         {
             if (asSingle) 
@@ -44,6 +39,11 @@ namespace MVCSample.Advanced
         public override HashSet<Type> GetAllContracts()
         {
             return new (Container.AllContracts.Select(binding => binding.Type));
+        }
+
+        protected override DiContainer CreateContainer()
+        {
+            return new DiContainer();
         }
     }
 }

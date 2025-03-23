@@ -1,15 +1,19 @@
 using MVCSample.Infrastructure;
 using System;
 using UnityEngine.SceneManagement;
+using UnityEngine;
 
 namespace MVCSample.SceneManagement
 {
+    [Serializable]
     public abstract class SceneData
     {
-        public string Name { get; private set; }
-        public int BuildIndex { get; private set; }
+        public string Name => _name;
 
-        public Func<Context> _getContextCallback;
+        [SerializeField] private string _name;
+        [SerializeField] private int _buildIndex;
+
+        private Func<Context> _getContextCallback;
 
         private SceneData(Func<Context> getContextCallback) 
         {
@@ -18,16 +22,16 @@ namespace MVCSample.SceneManagement
 
         public SceneData(string name, Func<Context> getContextCallback) : this(getContextCallback)
         {
-            Name = name;
+            _name = name;
 
-            BuildIndex = SceneManager.GetSceneByName(Name).buildIndex;
+            _buildIndex = SceneManager.GetSceneByName(_name).buildIndex;
         }
 
         public SceneData(int buildIndex, Func<Context> getContextCallback) : this(getContextCallback)
         {
-            BuildIndex = buildIndex;
+            _buildIndex = buildIndex;
 
-            Name = SceneManager.GetSceneByBuildIndex(BuildIndex).name;
+            _name = SceneManager.GetSceneByBuildIndex(_buildIndex).name;
         }
 
         public Context CreateSceneContext()

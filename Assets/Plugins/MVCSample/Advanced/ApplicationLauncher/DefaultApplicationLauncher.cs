@@ -1,18 +1,24 @@
+using MVCSample.Advanced;
 using MVCSample.Infrastructure.DI;
-using UnityEngine;
+using MVCSample.SceneManagement;
+using MVCSample.SceneManagement.Test;
 
 namespace MVCSample.Infrastructure
 {
-    public abstract class DefaultApplicationLauncher : BaseApplicationLauncher
+    public class DefaultApplicationLauncher : BaseApplicationLauncher
     {
-        //protected override void InstallBindings(IDIContainer dIContainer)
-        //{
-        //    dIContainer.ContainerAPI.RegisterInstance<ISceneLoader>(new DefaultSceneLoader());
-        //}
+        protected override ISystemBindInstaller GetSystemBindInstaller()
+        {
+            return new ZenjectSystemBindInstaller();
+        }
 
-        //protected override void ResolveDependences(IDIContainer container)
-        //{
-            
-        //}
+        protected override void Initialize()
+        {
+            ISceneManager sceneManager = Context.Global.Resolve<ISceneManager>();
+            SceneData sceneData = new TestSceneData("TestScene", () => GlobalContext.CreateNext());
+            sceneManager.AddScene(sceneData);
+
+            Context.Global.Resolve<ISceneLoader>().Load("TestScene");
+        }
     }
 }

@@ -31,9 +31,6 @@ namespace MVCSample.Infrastructure
             }
         }
 
-        private IDisposable _tickDisposable;
-        private IDisposable _fixedTickDisposable;
-
         #region Initialization
 
         public void Construct(Context context)
@@ -56,7 +53,7 @@ namespace MVCSample.Infrastructure
 
             Initialize();
 
-            RegisterInGameCycle();
+            RegisterModule();
         }
 
         private void InitializeChildren()
@@ -163,18 +160,18 @@ namespace MVCSample.Infrastructure
         {
             _moduleCollectionProperty.Dispose();
 
-            _tickDisposable.Dispose();
-            _fixedTickDisposable.Dispose();
+            IModuleRegistrator moduleRegistrator = _currentContext.ResolveDeep<IModuleRegistrator>();
+
+            moduleRegistrator.Unregister(this);
 
             Dispose();
         }
 
-        private void RegisterInGameCycle()
+        private void RegisterModule()
         {
-            ITickRegistrator tickRegistrator = _currentContext.ResolveDeep<ITickRegistrator>();
+            IModuleRegistrator moduleRegistrator = _currentContext.ResolveDeep<IModuleRegistrator>();
 
-            _tickDisposable = tickRegistrator.RegisterTickable(gameObject);
-            _fixedTickDisposable = tickRegistrator.RegisterFixedTickable(gameObject);
+            moduleRegistrator.Register(this);
         }
 
         #region Logs

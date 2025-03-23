@@ -36,28 +36,41 @@ namespace MVCSample.SceneManagement
 
         private IEnumerator ChangeScene(string sceneName)
         {
+            if (_currentEntryPoint == null)
+            {
+                yield return null;
+                ActivateCurrentScene();
+                yield break;
+            }
+
             if (SceneManager.GetActiveScene().name == sceneName)
             {
                 Debug.LogWarning("Attempt to change scene on the same scene");
                 yield break;
             }
 
-            if (_currentEntryPoint != null)
-                _currentEntryPoint.DisposeSceneModules();
+            _currentEntryPoint.DisposeSceneModules();
 
             yield return _coroutineStarter.Start(LoadInternal(sceneName));
 
-            if (SceneManager
-                .GetActiveScene()
-                .GetRootGameObjects()
-                .First()
-                .TryGetComponent(out SceneEntryPoint entryPoint) == false)
+            ActivateCurrentScene();
+        }
+
+        private void ActivateCurrentScene()
+        {
+            GameObject[] rootGameObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+
+            if (rootGameObjects.Length == 0)
             {
-                throw new System.Exception(CreateLogText());
+                Debug.LogWarning("Initialized empty scene");
+                return;
             }
 
+            if (rootGameObjects.First().TryGetComponent(out SceneEntryPoint entryPoint) == false)
+                throw new System.Exception(CreateLogText());
+
             _currentEntryPoint = entryPoint;
-            _currentEntryPoint.ActivateSceneModules(_sceneManager.GetSceneData(sceneName));
+            _currentEntryPoint.ActivateSceneModules(_sceneManager.GetSceneData(SceneManager.GetActiveScene().name));
         }
 
         private string CreateLogText()

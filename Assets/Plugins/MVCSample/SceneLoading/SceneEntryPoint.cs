@@ -1,46 +1,30 @@
 using MVCSample.Infrastructure;
 using MVCSample.Infrastructure.DI;
-using MVCSample.Tools;
-using UnityEngine;
 
 namespace MVCSample.SceneManagement
 {
     public sealed class SceneEntryPoint : ModuleMonoBehaviour
     {
-        private IGameCycle _gameCycle;
+        private IModuleRegistrator _moduleRegistrator;
 
         public void ActivateSceneModules(SceneData sceneData)
         {
-            _gameCycle = Context.Global.Resolve<IGameCycle>();
+            _moduleRegistrator = Context.Global.Resolve<IModuleRegistrator>();
 
             Construct(sceneData.CreateSceneContext());
         }
 
         public void DisposeSceneModules()
         {
+            _moduleRegistrator.Dispose();
+
             IModule module = this;
             module.Dispose();
         }
 
         protected override void IntallBindings(IDIRegistratorAPI diRegistrator)
         {
-            diRegistrator.RegisterInstance<ITickRegistrator>(_gameCycle);
-        }
-
-        private void Update()
-        {
-            if (_gameCycle == null)
-                return;
-
-            _gameCycle.Update(Time.deltaTime);
-        }
-
-        private void FixedUpdate()
-        {
-            if (_gameCycle == null)
-                return;
-
-            _gameCycle.FixedUpdate(Time.fixedDeltaTime);
+            diRegistrator.RegisterInstance(_moduleRegistrator);
         }
     }
 }
