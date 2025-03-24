@@ -7,11 +7,11 @@ namespace MVCSample.SceneManagement
     {
         private IModuleRegistrator _moduleRegistrator;
 
-        public void ActivateSceneModules(SceneData sceneData)
+        public void ActivateSceneModules()
         {
             _moduleRegistrator = Context.Global.Resolve<IModuleRegistrator>();
 
-            Construct(sceneData.CreateSceneContext());
+            Construct(Context.CreateNewInGlobal());
         }
 
         public void DisposeSceneModules()

@@ -14,10 +14,6 @@ namespace MVCSample.Infrastructure
 
         protected override void Initialize()
         {
-            ISceneManager sceneManager = Context.Global.Resolve<ISceneManager>();
-            SceneData sceneData = new TestSceneData("TestScene", () => GlobalContext.CreateNext());
-            sceneManager.AddScene(sceneData);
-
             Context.Global.Resolve<ISceneLoader>().Load("TestScene");
         }
     }

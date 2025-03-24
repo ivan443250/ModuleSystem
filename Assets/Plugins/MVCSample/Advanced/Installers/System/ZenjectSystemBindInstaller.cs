@@ -30,11 +30,6 @@ namespace MVCSample.Advanced
                 .AsSingle();
 
             container
-                .Bind<ISceneManager>()
-                .To<DefaultSceneManager>()
-                .AsSingle();
-
-            container
                 .Bind(typeof(IResolver), typeof(IResolvingChecker))
                 .To<GenericResolver>()
                 .AsSingle();
@@ -73,6 +68,16 @@ namespace MVCSample.Advanced
                 .Bind<IGameLoop>()
                 .To<GameLoop>()
                 .AsSingle();
+
+            container
+                .Bind<IRegistrator>()
+                .To<DefaultSceneRepository>()
+                .AsTransient();
+
+            container
+               .Bind(typeof(IDataExplorer), typeof(IGlobalDataExplorerContext))
+               .To<DefaultDataExplorer>()
+               .AsTransient();
         }
     }
 }

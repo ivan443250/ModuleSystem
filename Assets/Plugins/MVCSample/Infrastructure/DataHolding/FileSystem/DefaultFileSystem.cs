@@ -11,33 +11,71 @@ namespace MVCSample.Infrastructure.DataHolding
     {
         private IDataConverter _dataConverter;
 
+        private Dictionary<string, Dictionary<Type, object>> _cachedDirectoryes;
+
         public DefaultFileSystem(IDataConverter dataConverter)
         {
             _dataConverter = dataConverter;
+
+            _cachedDirectoryes = new();
         }
 
         public async Task Save(object objectToSave, params string[] folders)
         {
-            IFolderFilesCollection filesCollection = await GetFilesCollection(true, folders);
+            string path = GetFullPath(true, folders);
+
+            IFolderFilesCollection filesCollection = await FolderMetadata.GetFilesCollection(path, _dataConverter);
 
             await filesCollection.Reset(objectToSave);
+
+            if (_cachedDirectoryes.ContainsKey(path) == false)
+                _cachedDirectoryes.Add(path, new());
+
+            Type objectType = objectToSave.GetType();
+
+            if (_cachedDirectoryes[path].ContainsKey(objectType) == false)
+                _cachedDirectoryes[path].Add(objectType, null);
+
+            _cachedDirectoryes[path][objectType] = objectToSave;
+        }
+
+        public async Task SaveAll(Dictionary<Type, object> objectsToSave, params string[] folders)
+        {
+            string path = GetFullPath(true, folders);
+
+            IFolderFilesCollection filesCollection = await FolderMetadata.GetFilesCollection(path, _dataConverter);
+
+            foreach (Type type in objectsToSave.Keys) 
+                await filesCollection.Reset(objectsToSave[type]);
+
+            if (_cachedDirectoryes.ContainsKey(path) == false)
+                _cachedDirectoryes.Add(path, new());
+
+            _cachedDirectoryes[path] = objectsToSave;
         }
 
         public async Task<object> Load(Type objectType, params string[] folders)
         {
-            return await (await GetFilesCollection(false, folders)).Get(objectType);
+            string path = GetFullPath(false, folders);
+
+            if (_cachedDirectoryes.ContainsKey(path) && _cachedDirectoryes[path].ContainsKey(objectType))
+                return _cachedDirectoryes[path][objectType];
+
+            IFolderFilesCollection filesCollection = await FolderMetadata.GetFilesCollection(path, _dataConverter);
+
+            return await filesCollection.Get(objectType);
         }
 
         public async Task<Dictionary<Type, object>> LoadAll(params string[] folders)
         {
-            return await (await GetFilesCollection(false, folders)).GetAll();
-        }
+            string path = GetFullPath(false, folders);
 
-        private async Task<IFolderFilesCollection> GetFilesCollection(bool pathMustExist, params string[] folders)
-        {
-            string path = GetFullPath(pathMustExist, folders);
+            if (_cachedDirectoryes.ContainsKey(path))
+                return _cachedDirectoryes[path];
 
-            return await FolderMetadata.GetFilesCollection(path, _dataConverter);
+            IFolderFilesCollection filesCollection = await FolderMetadata.GetFilesCollection(path, _dataConverter);
+
+            return await filesCollection.GetAll();
         }
 
         private string GetFullPath(bool pathMustExist, params string[] folders)

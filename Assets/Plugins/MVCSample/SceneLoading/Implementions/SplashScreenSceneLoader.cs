@@ -9,8 +9,7 @@ namespace MVCSample.SceneManagement
     {
         private GameObject _splashScreen;
 
-        public SplashScreenSceneLoader(ICorutineStarter corutineStarter, ISceneManager sceneManager) 
-            : base(corutineStarter, sceneManager)
+        public SplashScreenSceneLoader(ICorutineStarter corutineStarter) : base(corutineStarter)
         {
             GameObject prefab = Resources.Load<GameObject>("SplashScreen");
 

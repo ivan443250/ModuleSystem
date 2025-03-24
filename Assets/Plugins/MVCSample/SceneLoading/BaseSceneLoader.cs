@@ -1,4 +1,3 @@
-using MVCSample.Infrastructure;
 using MVCSample.Tools;
 using System.Collections;
 using System.Linq;
@@ -13,13 +12,9 @@ namespace MVCSample.SceneManagement
 
         private ICorutineStarter _coroutineStarter;
 
-        private ISceneManager _sceneManager;
-
-        protected BaseSceneLoader(ICorutineStarter coroutineStarter, ISceneManager sceneManager) 
+        protected BaseSceneLoader(ICorutineStarter coroutineStarter) 
         {
             _coroutineStarter = coroutineStarter;
-
-            _sceneManager = sceneManager;
         }
 
         public void Load(string sceneName)
@@ -70,7 +65,7 @@ namespace MVCSample.SceneManagement
                 throw new System.Exception(CreateLogText());
 
             _currentEntryPoint = entryPoint;
-            _currentEntryPoint.ActivateSceneModules(_sceneManager.GetSceneData(SceneManager.GetActiveScene().name));
+            _currentEntryPoint.ActivateSceneModules();
         }
 
         private string CreateLogText()

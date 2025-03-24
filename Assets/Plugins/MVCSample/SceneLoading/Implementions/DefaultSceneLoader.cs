@@ -6,8 +6,7 @@ namespace MVCSample.SceneManagement
 {
     public class DefaultSceneLoader : BaseSceneLoader
     {
-        public DefaultSceneLoader(ICorutineStarter corutineStarter, ISceneManager sceneManager) 
-            : base(corutineStarter, sceneManager) { }
+        public DefaultSceneLoader(ICorutineStarter corutineStarter) : base(corutineStarter) { }
 
         protected override IEnumerator LoadInternal(string sceneName)
         {

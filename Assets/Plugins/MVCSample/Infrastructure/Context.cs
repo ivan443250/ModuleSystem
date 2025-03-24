@@ -7,7 +7,8 @@ namespace MVCSample.Infrastructure
 {
     public class Context
     {
-        public static IDIResolverAPI Global { get; private set; }
+        public static IDIResolverAPI Global => _globalInternal.DiContainer.ContainerAPI;
+        private static Context _globalInternal;
 
         public readonly IDIContainer DiContainer;
         public readonly EventContainer @EventContainer;
@@ -15,6 +16,11 @@ namespace MVCSample.Infrastructure
         private readonly Context _parentContext;
 
         private HashSet<Type> _bindWaitings;
+
+        public static Context CreateNewInGlobal()
+        {
+            return new Context(_globalInternal);
+        }
 
         private Context()
         {
@@ -26,12 +32,12 @@ namespace MVCSample.Infrastructure
         //Global Context
         public Context(IDIContainer dIContainer) : this()
         {
-            if (Global != null)
+            if (_globalInternal != null)
                 throw new Exception("Can not use this constructor when global context already exist");
 
             DiContainer = dIContainer;
 
-            Global = DiContainer.ContainerAPI;
+            _globalInternal = this;
         }
 
         //Other Contexts
