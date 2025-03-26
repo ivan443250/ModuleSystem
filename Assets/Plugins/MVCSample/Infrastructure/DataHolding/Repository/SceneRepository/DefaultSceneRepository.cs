@@ -8,7 +8,7 @@ namespace MVCSample.Infrastructure.DataHolding
     {
         public void Dispose()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public DisposableObject Register(IModule objectToRegister)
@@ -16,7 +16,8 @@ namespace MVCSample.Infrastructure.DataHolding
             if (TryGetGenericInterfaceType(objectToRegister, typeof(IRepositoryDataReader<>), out Type dataType) == false)
                 return new(() => { });
 
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return new(() => { });
         }
 
         private bool TryGetGenericInterfaceType(IModule obj, Type genericInterface, out Type genericType)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace MVCSample.Infrastructure.DataHolding
 {
@@ -57,18 +58,19 @@ namespace MVCSample.Infrastructure.DataHolding
 
         #region IGlobalDataExplorerContext API
 
-        async Task<ISaveCellExplorerContext> IGlobalDataExplorerContext.OpenSaveCell(int cellIndex)
+        async Task<ISaveCellExplorerContext> IGlobalDataExplorerContext.OpenSaveCell()
         {
-            if (cellIndex < 0)
-                throw new ArgumentOutOfRangeException("Save Cell Index can not be less than 0");
-
             _globalContext = await _fileSystem.LoadAll();
 
-            _saveCellIndex = cellIndex;
+            if (_globalContext.ContainsKey(typeof(SavedContext)) == false)
+                return await OpenSaveCellInternal(0);
+            else
+                return await OpenSaveCellInternal((_globalContext[typeof(SavedContext)] as SavedContext).SaveCell);
+        }
 
-            _cellContext = await _fileSystem.LoadAll(cellIndex.ToString());
-
-            return this;
+        async Task<ISaveCellExplorerContext> IGlobalDataExplorerContext.OpenSaveCell(int cellIndex)
+        {
+            return await OpenSaveCellInternal(cellIndex);
         }
 
         T IGlobalDataExplorerContext.GetData<T>() where T : class
@@ -78,7 +80,23 @@ namespace MVCSample.Infrastructure.DataHolding
 
         async Task IGlobalDataExplorerContext.Save<T>(T data) where T : class
         {
-            await _fileSystem.Save(data);
+            await SaveDataInternal(data, _globalContext);
+        }
+
+        private async Task<ISaveCellExplorerContext> OpenSaveCellInternal(int cellIndex)
+        {
+            if (cellIndex < 0)
+                throw new ArgumentOutOfRangeException("Save Cell Index can not be less than 0");
+
+            await _fileSystem.Save(new SavedContext(cellIndex));
+
+            _globalContext = await _fileSystem.LoadAll();
+
+            _saveCellIndex = cellIndex;
+
+            _cellContext = await _fileSystem.LoadAll(cellIndex.ToString());
+
+            return this;
         }
 
         #endregion
@@ -101,7 +119,7 @@ namespace MVCSample.Infrastructure.DataHolding
 
         async Task ISaveCellExplorerContext.Save<T>(T data) where T : class
         {
-            await _fileSystem.Save(data, _saveCellIndex.ToString());
+            await SaveDataInternal(data, _cellContext, _saveCellIndex.ToString());
         }
 
         #endregion
@@ -115,7 +133,7 @@ namespace MVCSample.Infrastructure.DataHolding
 
         async Task ISceneDataExplorerContext.Save<T>(T data) where T : class
         {
-            await _fileSystem.Save(data, _saveCellIndex.ToString(), _sceneName);
+            await SaveDataInternal(data, _sceneContext, _saveCellIndex.ToString(), _sceneName);
         }
 
         #endregion
@@ -127,10 +145,45 @@ namespace MVCSample.Infrastructure.DataHolding
 
             return context[typeof(T)] as T;
         }
+
+        private async Task SaveDataInternal(object data, Dictionary<Type, object> context, params string[] foldersPath)
+        {
+            Type dataType = data.GetType();
+
+            if (context.ContainsKey(dataType) == false)
+                context.Add(dataType, null);
+
+            context[dataType] = data;
+
+            await _fileSystem.Save(data, foldersPath);
+        }
+
+        public async Task OpenSceneDataSet(string sceneName)
+        {
+            if (SaveCellDataSet == null)
+                await GlobalDataSet.OpenSaveCell();
+
+            await SaveCellDataSet.OpenScene(sceneName);
+        }
+    }
+
+    [Serializable]
+    public class SavedContext
+    {
+        public int SaveCell => _saveCell;
+        [SerializeField] private int _saveCell;
+
+        public SavedContext() { }
+
+        public SavedContext(int saveCell)
+        {
+            _saveCell = saveCell;
+        }
     }
 
     public interface IGlobalDataExplorerContext
     {
+        Task<ISaveCellExplorerContext> OpenSaveCell();
         Task<ISaveCellExplorerContext> OpenSaveCell(int cellIndex);
 
         T GetData<T>() where T : class;

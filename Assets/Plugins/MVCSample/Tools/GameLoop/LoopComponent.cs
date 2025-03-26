@@ -10,12 +10,12 @@ namespace MVCSample.Tools
 
         private void Update()
         {
-            UpdateCallback.Invoke(Time.deltaTime);
+            UpdateCallback?.Invoke(Time.deltaTime);
         }
 
         private void FixedUpdate()
         {
-            FixedUpdateCallback.Invoke(Time.fixedDeltaTime);
+            FixedUpdateCallback?.Invoke(Time.fixedDeltaTime);
         }
     }
 }

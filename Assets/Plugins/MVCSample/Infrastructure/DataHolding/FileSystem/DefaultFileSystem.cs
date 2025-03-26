@@ -58,6 +58,9 @@ namespace MVCSample.Infrastructure.DataHolding
         {
             string path = GetFullPath(false, folders);
 
+            if (path == null)
+                return null;
+
             if (_cachedDirectoryes.ContainsKey(path) && _cachedDirectoryes[path].ContainsKey(objectType))
                 return _cachedDirectoryes[path][objectType];
 
@@ -69,6 +72,9 @@ namespace MVCSample.Infrastructure.DataHolding
         public async Task<Dictionary<Type, object>> LoadAll(params string[] folders)
         {
             string path = GetFullPath(false, folders);
+
+            if (path == null)
+                return new();
 
             if (_cachedDirectoryes.ContainsKey(path))
                 return _cachedDirectoryes[path];

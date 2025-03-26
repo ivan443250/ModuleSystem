@@ -75,9 +75,9 @@ namespace MVCSample.Advanced
                 .AsTransient();
 
             container
-               .Bind(typeof(IDataExplorer), typeof(IGlobalDataExplorerContext))
+               .Bind<IDataExplorer>()
                .To<DefaultDataExplorer>()
-               .AsTransient();
+               .AsSingle();
         }
     }
 }

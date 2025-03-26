@@ -1,3 +1,4 @@
+using MVCSample.Infrastructure.DataHolding;
 using MVCSample.Tools;
 using System.Collections;
 using UnityEngine;
@@ -9,7 +10,8 @@ namespace MVCSample.SceneManagement
     {
         private GameObject _splashScreen;
 
-        public SplashScreenSceneLoader(ICorutineStarter corutineStarter) : base(corutineStarter)
+        public SplashScreenSceneLoader(ICorutineStarter corutineStarter, IDataExplorer dataExplorer) 
+            : base(corutineStarter, dataExplorer)
         {
             GameObject prefab = Resources.Load<GameObject>("SplashScreen");
 

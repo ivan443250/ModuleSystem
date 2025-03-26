@@ -14,7 +14,7 @@ namespace MVCSample.Infrastructure
 
         protected override void Initialize()
         {
-            Context.Global.Resolve<ISceneLoader>().Load("TestScene");
+            Context.Global.Resolve<ISceneLoader>().Load("Menu");
         }
     }
 }

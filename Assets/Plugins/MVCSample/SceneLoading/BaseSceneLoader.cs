@@ -1,6 +1,8 @@
+using MVCSample.Infrastructure.DataHolding;
 using MVCSample.Tools;
 using System.Collections;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,9 +14,13 @@ namespace MVCSample.SceneManagement
 
         private ICorutineStarter _coroutineStarter;
 
-        protected BaseSceneLoader(ICorutineStarter coroutineStarter) 
+        private IDataExplorer _dataExplorer;
+
+        protected BaseSceneLoader(ICorutineStarter coroutineStarter, IDataExplorer dataExplorer) 
         {
             _coroutineStarter = coroutineStarter;
+
+            _dataExplorer = dataExplorer;
         }
 
         public void Load(string sceneName)
@@ -34,7 +40,7 @@ namespace MVCSample.SceneManagement
             if (_currentEntryPoint == null)
             {
                 yield return null;
-                ActivateCurrentScene();
+                yield return _coroutineStarter.Start(ActivateCurrentScene());
                 yield break;
             }
 
@@ -48,17 +54,19 @@ namespace MVCSample.SceneManagement
 
             yield return _coroutineStarter.Start(LoadInternal(sceneName));
 
-            ActivateCurrentScene();
+            yield return _coroutineStarter.Start(ActivateCurrentScene());
         }
 
-        private void ActivateCurrentScene()
+        private IEnumerator ActivateCurrentScene()
         {
+            yield return WaitForTask(_dataExplorer.OpenSceneDataSet(SceneManager.GetActiveScene().name));
+
             GameObject[] rootGameObjects = SceneManager.GetActiveScene().GetRootGameObjects();
 
             if (rootGameObjects.Length == 0)
             {
                 Debug.LogWarning("Initialized empty scene");
-                return;
+                yield break;
             }
 
             if (rootGameObjects.First().TryGetComponent(out SceneEntryPoint entryPoint) == false)
@@ -71,6 +79,14 @@ namespace MVCSample.SceneManagement
         private string CreateLogText()
         {
             return $"Scene {SceneManager.GetActiveScene().name} can not contain GameObjects in MainRoot";
+        }
+
+        IEnumerator WaitForTask(Task task)
+        {
+            while (!task.IsCompleted)
+            {
+                yield return null;
+            }
         }
     }
 }
