@@ -3,7 +3,7 @@ using System;
 
 namespace MVCSample.Infrastructure
 {
-    public interface IRegistrator : IDisposable
+    public interface IRegistrator : IAsyncDisposable
     {
         DisposableObject Register(IModule objectToRegister);
     }

@@ -14,7 +14,7 @@ namespace MVCSample.Tools
         [SerializeField] private MonoScript _script;
 #endif
         [HideInInspector]
-        [SerializeField] 
+        [SerializeField]
         private string _classInfo;
 
         public SerializableType() { }

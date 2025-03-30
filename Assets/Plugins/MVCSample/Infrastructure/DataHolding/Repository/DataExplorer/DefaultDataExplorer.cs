@@ -73,9 +73,9 @@ namespace MVCSample.Infrastructure.DataHolding
             return await OpenSaveCellInternal(cellIndex);
         }
 
-        T IGlobalDataExplorerContext.GetData<T>() where T : class
+        object IGlobalDataExplorerContext.GetData(Type type)
         {
-            return GetDataInternal<T>(_globalContext);
+            return GetDataInternal(type, _globalContext);
         }
 
         async Task IGlobalDataExplorerContext.Save<T>(T data) where T : class
@@ -112,9 +112,9 @@ namespace MVCSample.Infrastructure.DataHolding
             return this;
         }
 
-        T ISaveCellExplorerContext.GetData<T>() where T : class
+        object ISaveCellExplorerContext.GetData(Type type)
         {
-            return GetDataInternal<T>(_cellContext);
+            return GetDataInternal(type, _cellContext);
         }
 
         async Task ISaveCellExplorerContext.Save<T>(T data) where T : class
@@ -126,9 +126,9 @@ namespace MVCSample.Infrastructure.DataHolding
 
         #region ISceneDataExplorerContext API
 
-        T ISceneDataExplorerContext.GetData<T>()
+        object ISceneDataExplorerContext.GetData(Type type)
         {
-            return GetDataInternal<T>(_sceneContext);
+            return GetDataInternal(type, _sceneContext);
         }
 
         async Task ISceneDataExplorerContext.Save<T>(T data) where T : class
@@ -138,12 +138,12 @@ namespace MVCSample.Infrastructure.DataHolding
 
         #endregion
 
-        private T GetDataInternal<T>(Dictionary<Type, object> context) where T : class
+        private object GetDataInternal(Type type, Dictionary<Type, object> context)
         {
-            if (context.ContainsKey(typeof(T)) == false)
+            if (context.ContainsKey(type) == false)
                 return null;
 
-            return context[typeof(T)] as T;
+            return context[type];
         }
 
         private async Task SaveDataInternal(object data, Dictionary<Type, object> context, params string[] foldersPath)
@@ -164,6 +164,17 @@ namespace MVCSample.Infrastructure.DataHolding
                 await GlobalDataSet.OpenSaveCell();
 
             await SaveCellDataSet.OpenScene(sceneName);
+        }
+
+        public async Task SaveAll()
+        {
+            if (SceneDataSet != null)
+                await _fileSystem.SaveAll(_sceneContext, _saveCellIndex.ToString(), _sceneName);
+
+            if (SaveCellDataSet != null)
+                await _fileSystem.SaveAll(_cellContext, _saveCellIndex.ToString());
+
+            await _fileSystem.SaveAll(_globalContext);
         }
     }
 
@@ -186,7 +197,7 @@ namespace MVCSample.Infrastructure.DataHolding
         Task<ISaveCellExplorerContext> OpenSaveCell();
         Task<ISaveCellExplorerContext> OpenSaveCell(int cellIndex);
 
-        T GetData<T>() where T : class;
+        object GetData(Type type);
         Task Save<T>(T data) where T : class;
     }
 
@@ -194,13 +205,13 @@ namespace MVCSample.Infrastructure.DataHolding
     {
         Task<ISceneDataExplorerContext> OpenScene(string sceneName);
 
-        T GetData<T>() where T : class;
+        object GetData(Type type);
         Task Save<T>(T data) where T : class;
     }
 
     public interface ISceneDataExplorerContext
     {
-        T GetData<T>() where T : class;
+        object GetData(Type type);
         Task Save<T>(T data) where T : class;
     }
 }

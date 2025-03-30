@@ -10,5 +10,6 @@ namespace MVCSample.Infrastructure.DataHolding
         ISceneDataExplorerContext SceneDataSet { get; }
 
         Task OpenSceneDataSet(string sceneName);
+        Task SaveAll();
     }
 }

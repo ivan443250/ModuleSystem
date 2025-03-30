@@ -13,7 +13,7 @@ namespace MVCSample.Tools
 
         public void Dispose()
         {
-            _disposeCallback.Invoke();
+            _disposeCallback?.Invoke();
         }
 
         public static DisposableObject operator +(DisposableObject obj1, DisposableObject obj2)

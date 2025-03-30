@@ -1,7 +1,6 @@
 using MVCSample.Infrastructure;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+using System.Threading.Tasks;
 
 namespace MVCSample.Tools
 {
@@ -66,10 +65,12 @@ namespace MVCSample.Tools
                 tickable.FixedTick(fixedTickDelta);
         }
 
-        public void Dispose()
+        public ValueTask DisposeAsync()
         {
             _gameLoop.UpdateCallback -= Update;
             _gameLoop.FixedUpdateCallback -= FixedUpdate;
+
+            return new ValueTask();
         }
     }
 }

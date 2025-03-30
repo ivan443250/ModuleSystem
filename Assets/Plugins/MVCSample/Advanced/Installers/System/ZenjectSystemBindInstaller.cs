@@ -71,7 +71,7 @@ namespace MVCSample.Advanced
 
             container
                 .Bind<IRegistrator>()
-                .To<DefaultSceneRepository>()
+                .To<DataReaderRegistrator>()
                 .AsTransient();
 
             container

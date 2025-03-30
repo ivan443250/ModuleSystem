@@ -1,5 +1,6 @@
 using MVCSample.Tools;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MVCSample.Infrastructure
 {
@@ -16,10 +17,10 @@ namespace MVCSample.Infrastructure
             _moduleDisposeCallbacks = new();
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
-            foreach (IRegistrator registrator in _registrators) 
-                registrator.Dispose();
+            foreach (IRegistrator registrator in _registrators)
+                await registrator.DisposeAsync();
         }
 
         public void Register(IModule module)

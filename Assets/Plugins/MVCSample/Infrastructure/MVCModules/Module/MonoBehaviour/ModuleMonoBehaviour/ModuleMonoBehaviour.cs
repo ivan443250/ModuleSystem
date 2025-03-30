@@ -51,9 +51,9 @@ namespace MVCSample.Infrastructure
 
             ResolveBindings();
 
-            Initialize();
-
             RegisterModule();
+
+            Initialize();
         }
 
         private void InitializeChildren()

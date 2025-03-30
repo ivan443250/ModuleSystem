@@ -37,20 +37,19 @@ namespace MVCSample.SceneManagement
 
         private IEnumerator ChangeScene(string sceneName)
         {
-            if (_currentEntryPoint == null)
-            {
-                yield return null;
-                yield return _coroutineStarter.Start(ActivateCurrentScene());
-                yield break;
-            }
-
             if (SceneManager.GetActiveScene().name == sceneName)
             {
+                if (_currentEntryPoint == null)
+                {
+                    yield return _coroutineStarter.Start(ActivateCurrentScene());
+                    yield break;
+                }
+
                 Debug.LogWarning("Attempt to change scene on the same scene");
                 yield break;
             }
 
-            _currentEntryPoint.DisposeSceneModules();
+            _currentEntryPoint?.DisposeSceneModules();
 
             yield return _coroutineStarter.Start(LoadInternal(sceneName));
 

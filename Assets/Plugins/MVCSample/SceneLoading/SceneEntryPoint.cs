@@ -1,5 +1,6 @@
 using MVCSample.Infrastructure;
 using MVCSample.Infrastructure.DI;
+using System.Threading.Tasks;
 
 namespace MVCSample.SceneManagement
 {
@@ -14,9 +15,9 @@ namespace MVCSample.SceneManagement
             Construct(Context.CreateNewInGlobal());
         }
 
-        public void DisposeSceneModules()
+        public async Task DisposeSceneModules()
         {
-            _moduleRegistrator.Dispose();
+            await _moduleRegistrator.DisposeAsync();
 
             IModule module = this;
             module.Dispose();
