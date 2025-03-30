@@ -49,7 +49,7 @@ namespace MVCSample.SceneManagement
                 yield break;
             }
 
-            _currentEntryPoint?.DisposeSceneModules();
+            yield return WaitForTask(_currentEntryPoint?.DisposeSceneModules());
 
             yield return _coroutineStarter.Start(LoadInternal(sceneName));
 

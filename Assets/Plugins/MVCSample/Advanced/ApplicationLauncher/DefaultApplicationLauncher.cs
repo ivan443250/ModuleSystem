@@ -1,7 +1,6 @@
 using MVCSample.Advanced;
 using MVCSample.Infrastructure.DI;
 using MVCSample.SceneManagement;
-using MVCSample.SceneManagement.Test;
 
 namespace MVCSample.Infrastructure
 {

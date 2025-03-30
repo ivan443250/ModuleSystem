@@ -51,10 +51,7 @@ namespace MVCSample.Tools
             MethodInfo[] allMethods = readerType.MakeGenericType(genericTypes).GetMethods();
 
             if (allMethods.Length != 1)
-                throw new Exception("1");
-
-            //Debug.Log(string.Join<MethodInfo>(", ", allMethods));
-            //MethodInfo genericMethodInfo = allMethods.First().MakeGenericMethod(genericTypes);
+                throw new Exception("0");
 
             allMethods.First().Invoke(module, dataSets);
         }
