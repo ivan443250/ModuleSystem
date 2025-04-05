@@ -80,8 +80,11 @@ namespace MVCSample.SceneManagement
             return $"Scene {SceneManager.GetActiveScene().name} can not contain GameObjects in MainRoot";
         }
 
-        IEnumerator WaitForTask(Task task)
+        private IEnumerator WaitForTask(Task task)
         {
+            if (task == null)
+                yield break;
+
             while (!task.IsCompleted)
             {
                 yield return null;

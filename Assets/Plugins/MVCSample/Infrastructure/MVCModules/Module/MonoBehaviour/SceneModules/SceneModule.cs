@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace MVCSample.Infrastructure
 {
-    public abstract class ModuleMonoBehaviour : MonoBehaviour, IModule, IModuleContainer
+    public abstract class SceneModule : MonoBehaviour, IModule, IModuleContainer
     {
         private Context _currentContext;
 
@@ -153,6 +153,21 @@ namespace MVCSample.Infrastructure
         protected virtual void Initialize() { }
 
         protected virtual void Dispose() { }
+
+        protected T InstantiateChildModule<T>(T modulePrefab) where T : SceneModule
+        {
+            return _moduleCollectionProperty.CreateChild(modulePrefab, _currentContext).GetComponent<T>();
+        }
+
+        protected void DestroyChildModule(SceneModule child)
+        {
+            _moduleCollectionProperty.DestroyChild(child);
+        }
+
+        protected IDisposable Subscribe<T>(Action<T> callback) where T : IEventData
+        {
+            return _currentContext.EventContainer.Subscribe(callback);
+        }
 
         #endregion
 

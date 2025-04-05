@@ -1,18 +1,16 @@
-using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace MVCSample.Tools
 {
     public class DefaultCoroutineStarter : ICorutineStarter
     {
-        private readonly MonoBehaviour _coroutineProvider;
+        private readonly CoroutineProvider _coroutineProvider;
 
         public DefaultCoroutineStarter()
         {
             _coroutineProvider = new GameObject("CoroutineProvider").AddComponent<CoroutineProvider>();
-            UnityEngine.Object.DontDestroyOnLoad(_coroutineProvider);
+            Object.DontDestroyOnLoad(_coroutineProvider);
         }
 
         public Coroutine Start(IEnumerator routine)

@@ -53,18 +53,16 @@ namespace MVCSample.Infrastructure
 
         public void InitializeChildren(Context initializationContext)
         {
-            List<IModule> children = GetChildren();
-
-            if (children.Count == 0)
+            if (_children.Count == 0)
                 return;
 
-            if (children.Count == 1)
+            if (_children.Count == 1)
             {
-                children.First().Construct(initializationContext.CreateNext());
+                InitializeModule(_children.First(), initializationContext);
                 return;
             }
 
-            DependencyCollectionInitializator<IModule> initializator = new(children,
+            DependencyCollectionInitializator<IModule> initializator = new(_children,
                 m => InitializeModule(m, initializationContext),
                 m => m.GetNecessaryDependencesInCurrentContext(initializationContext, GetChildren()));
 
@@ -80,6 +78,29 @@ namespace MVCSample.Infrastructure
         public IEnumerator<IModule> GetEnumerator()
         {
             return Children.GetEnumerator();
+        }
+
+        public SceneModule CreateChild(SceneModule childPrefab, Context parentContext)
+        {
+            SceneModule instance = UnityEngine.Object.Instantiate(childPrefab, _currentModuleTransform);
+
+            _children.Add(instance);
+
+            InitializeModule(instance, parentContext);
+
+            return instance;
+        }
+
+        public void DestroyChild(SceneModule child)
+        {
+            if (_children.Contains(child) == false)
+                throw new Exception("Attempt to delete an object that does not exist in the current module");
+
+            _children.Remove(child);
+
+            ((IModule)child).Dispose();
+
+            UnityEngine.Object.Destroy(child.gameObject);
         }
 
         private void InitializeModule(IModule module, Context initializationContext)

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace MVCSample.SceneManagement
 {
-    public sealed class SceneEntryPoint : ModuleMonoBehaviour
+    public sealed class SceneEntryPoint : SceneModule
     {
         private IModuleRegistrator _moduleRegistrator;
 
