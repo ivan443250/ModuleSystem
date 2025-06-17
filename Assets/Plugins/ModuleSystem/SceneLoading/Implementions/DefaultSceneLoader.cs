@@ -1,6 +1,7 @@
 using MVCSample.Infrastructure.DataHolding;
 using MVCSample.Tools;
 using System.Collections;
+using Plugins.MVCSample.SceneLoading;
 using UnityEngine.SceneManagement;
 
 namespace MVCSample.SceneManagement

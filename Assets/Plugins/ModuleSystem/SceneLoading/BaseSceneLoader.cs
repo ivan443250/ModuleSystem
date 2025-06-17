@@ -1,20 +1,21 @@
-using MVCSample.Infrastructure.DataHolding;
-using MVCSample.Tools;
 using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
+using MVCSample.Infrastructure.DataHolding;
+using MVCSample.SceneManagement;
+using MVCSample.Tools;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace MVCSample.SceneManagement
+namespace Plugins.MVCSample.SceneLoading
 {
     public abstract class BaseSceneLoader : ISceneLoader
     {
         private SceneEntryPoint _currentEntryPoint;
 
-        private ICorutineStarter _coroutineStarter;
+        private readonly ICorutineStarter _coroutineStarter;
 
-        private IDataExplorer _dataExplorer;
+        private readonly IDataExplorer _dataExplorer;
 
         protected BaseSceneLoader(ICorutineStarter coroutineStarter, IDataExplorer dataExplorer) 
         {

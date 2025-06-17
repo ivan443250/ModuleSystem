@@ -15,7 +15,7 @@ namespace MVCSample.Infrastructure.DataHolding
             return JsonUtility.FromJson(objectSrting, objectType);
         }
 
-        public T ConvertToObject<T>(string objectSrting) where T : class 
+        public T ConvertToObject<T>(string objectSrting) where T : class
         {
             return ConvertToObject(objectSrting, typeof(T)) as T;
         }
